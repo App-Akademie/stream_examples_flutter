@@ -18,16 +18,25 @@ class LotteryScreen extends StatelessWidget {
       body: StreamBuilder<LotteryNumber>(
         stream: repository.lotteryNumberStream(),
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
+          if (snapshot.connectionState != ConnectionState.waiting &&
+              snapshot.hasData) {
             numbers.add(snapshot.data!.number);
+
+            return Center(
+              child: SingleChildScrollView(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: numbers
+                      .map((number) => NumberItem(number: number))
+                      .toList(),
+                ),
+              ),
+            );
+          } else if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: Text("Loading..."));
+          } else {
+            return const Text("Something else");
           }
-          return Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children:
-                  numbers.map((number) => NumberItem(number: number)).toList(),
-            ),
-          );
         },
       ),
     );
